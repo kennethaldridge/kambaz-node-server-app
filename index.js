@@ -10,7 +10,12 @@ import AssignmentRoutes from './(kambaz)/assignments/routes.js';
 import EnrollmentsRoutes from './(kambaz)/enrollments/routes.js';
 import "dotenv/config";
 import session from "express-session";
+import mongoose from "mongoose";
 
+const CONNECTION_STRING = process.env.DATABASE_CONNECTION_STRING || "mongodb://127.0.0.1:27017/kambaz"
+mongoose.connect(CONNECTION_STRING)
+.then(() => console.log("Connected to MongoDB"))
+  .catch((err) => console.log("MongoDB connection error:", err));
 const app = express();
 
 app.use(
@@ -44,4 +49,6 @@ AssignmentRoutes(app, db);
 EnrollmentsRoutes(app, db);
 Lab5(app);
 Hello(app);
-app.listen(process.env.PORT || 4000)
+app.listen(process.env.PORT || 4000, () => {
+  console.log("Server listening on port 4000");
+});
