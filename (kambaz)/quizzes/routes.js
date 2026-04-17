@@ -1,7 +1,11 @@
 import QuizzesDao from "./dao.js";
+import QuestionsDao from "../questions/dao.js";
+import QuizAttemptsDao from "../quizAttempts/dao.js";
 
 export default function QuizRoutes(app, db) {
   const dao = QuizzesDao(db);
+  const questionsDao = QuestionsDao(db);
+  const attemptsDao = QuizAttemptsDao(db);
 
   const findQuizzesForCourse = async (req, res) => {
     try {
@@ -66,6 +70,8 @@ export default function QuizRoutes(app, db) {
         res.sendStatus(403); return;
       }
       const { quizId } = req.params;
+      await questionsDao.deleteQuestionsForQuiz(quizId);
+      await attemptsDao.deleteAttemptsForQuiz(quizId);
       const status = await dao.deleteQuiz(quizId);
       res.json(status);
     } catch (error) {

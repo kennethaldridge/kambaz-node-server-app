@@ -1,11 +1,15 @@
 import CoursesDao from "./dao.js";
 import EnrollmentsDao from "../enrollments/dao.js";
 import QuizzesDao from "../quizzes/dao.js";
+import QuestionsDao from "../questions/dao.js";
+import QuizAttemptsDao from "../quizAttempts/dao.js";
 
 export default function CourseRoutes(app, db) {
   const dao = CoursesDao(db);
   const enrollmentsDao = EnrollmentsDao(db);
   const quizzesDao = QuizzesDao(db);
+  const questionsDao = QuestionsDao(db);
+  const attemptsDao = QuizAttemptsDao(db);
 
   const findAllCourses = async (req, res) => {
     try {
@@ -52,6 +56,10 @@ export default function CourseRoutes(app, db) {
     try {
       const { courseId } = req.params;
       await enrollmentsDao.unenrollAllUsersFromCourse(courseId);
+      const quizzes = await quizzesDao.findQuizzesForCourse(courseId);
+      const quizIds = quizzes.map((q) => q._id);
+      await questionsDao.deleteQuestionsForQuizIds(quizIds);
+      await attemptsDao.deleteAttemptsForQuizIds(quizIds);
       await quizzesDao.deleteQuizzesForCourse(courseId);
       const status = await dao.deleteCourse(courseId);
       res.json(status);
